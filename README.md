@@ -1,2 +1,38 @@
-# dos-attack-protection-gns3
-Built a GNS3 lab. Simulated DoS attacks (ICMP, UDP, TCP SYN) via hping3. Implemented layered defense: uRPF, QoS Policing, CoPP. Result: packet loss 80% → 0%, RTT stabilized (~21.6 ms).
+# Моделирование защиты от DoS-атак в среде GNS3
+
+## Описание
+Собран стенд в GNS3 на базе маршрутизатора Cisco c7200 и двух виртуальных машин Ubuntu (QEMU).
+
+Смоделированы три типа атак: **ICMP Flood**, **UDP Flood**, **TCP SYN Flood** с подменой IP-адресов (hping3 --rand-source).
+
+Настроены механизмы защиты:
+- **uRPF (Strict Mode)** — блокировка трафика с подменённым Source IP (>320 000 пакетов)
+- **QoS Traffic Policing** — ограничение скорости транзитного ICMP/UDP-флуда (425 907 отброшено)
+- **CoPP** — защита CPU маршрутизатора от SYN-флуда (140 082 отсечено)
+
+## Результаты
+
+| Параметр | Без защиты | С защитой |
+|----------|------------|-----------|
+| Потери пакетов (packet loss) | до 80% | **0%** |
+| RTT (среднее) | 150 мс | **~21.6 мс** |
+| Загрузка CPU маршрутизатора | 100% | штатный уровень |
+
+Эксперимент показал, что эшелонированная защита полностью локализует деструктивный трафик на периметре сети, сохраняя доступность сервисов для легитимных пользователей.
+
+## Скриншоты
+
+- [Топология стенда](screenshots/topology.png)
+- [CPU до атаки](screenshots/cpu_idle.png)
+- [CPU при SYN-флуде](screenshots/cpu_attack.png)
+- [Потери пакетов (80%)](screenshots/ping_degradation.png)
+- [Результат: 0% loss](screenshots/ping_recovery.png)
+- [uRPF статистика](screenshots/urpf_stats.png)
+- [QoS статистика](screenshots/qos_stats.png)
+- [CoPP статистика](screenshots/copp_stats.png)
+
+## Используемые технологии
+- GNS3 (эмулятор)
+- Cisco c7200, Cisco IOS
+- Ubuntu (QEMU)
+- hping3 (генерация атак)
